@@ -206,6 +206,26 @@
         </li>
       
         
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives/" rel="section">
             
@@ -248,7 +268,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/11/article-title/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/11/hibernate-基本用法/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xiaomo">
@@ -267,7 +287,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/09/11/article-title/" itemprop="url">article title</a></h1>
+                <a class="post-title-link" href="/2017/09/11/hibernate-基本用法/" itemprop="url">hibernate-基本用法1</a></h1>
         
 
         <div class="post-meta">
@@ -289,6 +309,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/hibernate/" itemprop="url" rel="index">
+                    <span itemprop="name">hibernate</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -319,7 +361,40 @@
       
         
           
-            <p>这是我的测试博客！欢迎来到我的博客！</p>
+            <p><strong>简介</strong></p>
+<p>hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。<br>其优点有：<br>1.ORM，移植性好<br>2.缓存机制，一级和二级缓存<br>3.简洁的 HQL<br>缺点：<br>1.全表映射在复杂查询时难以做到 sql 优化</p>
+<p><strong>Hibernate5 包依赖</strong></p>
+<p>通过 maven 依赖添加必须的 jar 包</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.hibernate&lt;/groupId&gt;
+    &lt;artifactId&gt;hibernate-core&lt;/artifactId&gt;
+    &lt;version&gt;5.2.8.Final&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>hibernate 是有很多功能模块的，例如：orm 、search、validate、ogm，需要使用哪些功能，才添相应的依赖，通过 hibernate 官网的快速使用向导可以找到对应的 dependency。</p>
+<p><strong>Hibernate 配置文件</strong></p>
+<p>1.hibernate.cfg.xml(复杂配置)<br>2.hibernate.properties(简单配置)<br>3.ehcache.xml（可选，二级缓存配置）</p>
+<p>在写配置文件时，最好就是参考官网中给出的例子，一般在下载的例子项目中可以找到。配置信息主要分两部分：基础配置（连接数据的参数、数据库配置） 和 实体与数据表的映射配置。</p>
+<p>基础配置基本格式：尤其注意数据头要与你的数据环境匹配</p>
+<pre><code>&lt;!DOCTYPE hibernate-configuration PUBLIC
+&quot;-//Hibernate/Hibernate Configuration DTD 3.0//EN&quot;
+&quot;http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd&quot;&gt;
+
+&lt;hibernate-configuration&gt;
+    &lt;session-factory&gt;
+        &lt;property /&gt;
+        &lt;mapping /&gt;
+    &lt;/session-factory&gt;
+&lt;/hibernate-configuration&gt;
+</code></pre><p>实体与数据表的映射配置：<br>1.使用 xml 配置（ClassName.hbm.xml）</p>
+<pre><code>&lt;!DOCTYPE hibernate-mapping PUBLIC
+ &quot;-//Hibernate/Hibernate Mapping DTD 3.0//EN&quot;
+  &quot;http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd&quot; &gt;
+  &lt;hibernate-mapping&gt;
+    &lt;class&gt;
+     //对应的实体类属性
+    &lt;/class&gt;
+&lt;/hibernate-mapping&gt;
+</code></pre><p>2.使用注解配置:新建对应的实体类，在类中使用注解，基本注解有如下<br>@Entity 声明一个映射实体对象<br>@Table  声明表名<br>@Id     主键<br>@GeneratedValue 主键生成策略<br>@Column 对应列名<br>@Temporal 指定时间精度<br>@Enumerated 指定枚举类型存储格式<br>@Transient 指明该字段不会被持久化</p>
 
           
         
@@ -411,7 +486,25 @@
           
 
           
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
 
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
           
 
         </nav>
