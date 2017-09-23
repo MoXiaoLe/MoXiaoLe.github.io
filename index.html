@@ -504,7 +504,7 @@ PagingAndSortingRepository
 &lt;property name=&quot;testWhileIdle&quot; value=&quot;true&quot;/&gt;
 </code></pre><p>要想用好 hibernate 还需要学习很多细节内容,其中实体类映射就是一大重点.在 hibernate 中支持实体类中一对一,一对多,多对一,多对多的关联关系.推荐使用注解配置.</p>
 <p><strong>一对一</strong> : 商品表和价格表的一对一的关系</p>
-<p><img src="./uploads/121.png" alt="enter description here" title="121.png"></p>
+<p><img src="/uploads/121.png" alt="enter description here" title="121.png"></p>
 <pre><code>/* 单边 */
 @Entity
 @Table(name = &quot;t_product&quot;)
@@ -559,7 +559,7 @@ public class PricePojo implements Serializable {
 
 }
 </code></pre><p><strong>一对多(双边)</strong></p>
-<p><img src="./uploads/12m.png" alt="enter description here" title="12m.png"></p>
+<p><img src="/uploads/12m.png" alt="enter description here" title="12m.png"></p>
 <pre><code>@Entity
 @Table(name = &quot;t_seller&quot;)
 public class SellerPojo implements Serializable {
@@ -589,7 +589,7 @@ public class GoodPojo implements Serializable {
     private SellerPojo seller;
 }
 </code></pre><p>各种关联关系使用雷同,主要注解均在下表:</p>
-<p><img src="./uploads/zhujiebiao.png" alt="enter description here" title="zhujiebiao.png"></p>
+<p><img src="/uploads/zhujiebiao.png" alt="enter description here" title="zhujiebiao.png"></p>
 <p>在上面注解中有一 fetch 属性,值为 LAZY 与 EAGER :<br>Lazy 为延迟加载，Eager 为即时加载，在查询时如果查询对象还有关联其他表的对象，会一起查询出来，延迟加载就是在使用该成员对象时加载出来，即时加载就是随着主对象一起加载出来，这样需要耗费更多的操作。但是在使用延迟加载时，如果使用成员对象时，已经 close session 就会报错了。所以为了解决延迟加载带来的问题：一是在 session close 前调用一下 getter 方法，二是延迟 session 的关闭，即在完成逻辑业务再关闭。一般整合 spring 后事务管理交给 spring 完成,在 service 方法配置事务注解即可, 很少遇到这样的问题.</p>
 <p>spring data-jpa 事务配置</p>
 <pre><code>&lt;!-- 4.配置Spring data JPA的事务管理（业务逻辑上数据操作的一致性） --&gt;
