@@ -95,18 +95,18 @@
 
 
 
-<meta name="description" content="简介 hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。其优点有：1.ORM，移植性好2.缓存机制，一级和二级缓存3.简洁的 HQL缺点：1.全表映射在复杂查询时难以做到 sql 优化 Hibernate5 包依赖 通过 maven 依赖添加必须的 jar 包 &amp;lt;dependency&amp;gt;     &amp;lt;group">
+<meta name="description" content="简介 hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。其优点有：1.ORM，移植性好2.缓存机制，一级和二级缓存3.简洁的 HQL缺点：1.全表映射在复杂查询时难以做到 sql 优化 使用基本流程：添加相关依赖-&amp;gt; 做连接数据库的基本配置 -&amp;gt; 实体类与数据表的映射配置-&amp;gt; 通过 session 操作数据">
 <meta name="keywords" content="orm,hibernate">
 <meta property="og:type" content="article">
 <meta property="og:title" content="hibernate-基本用法1">
-<meta property="og:url" content="http://yoursite.com/2017/09/11/hibernate-基本用法/index.html">
+<meta property="og:url" content="http://yoursite.com/2017/09/11/hibernate-基本用法1/index.html">
 <meta property="og:site_name" content="xiaomo">
-<meta property="og:description" content="简介 hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。其优点有：1.ORM，移植性好2.缓存机制，一级和二级缓存3.简洁的 HQL缺点：1.全表映射在复杂查询时难以做到 sql 优化 Hibernate5 包依赖 通过 maven 依赖添加必须的 jar 包 &amp;lt;dependency&amp;gt;     &amp;lt;group">
+<meta property="og:description" content="简介 hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。其优点有：1.ORM，移植性好2.缓存机制，一级和二级缓存3.简洁的 HQL缺点：1.全表映射在复杂查询时难以做到 sql 优化 使用基本流程：添加相关依赖-&amp;gt; 做连接数据库的基本配置 -&amp;gt; 实体类与数据表的映射配置-&amp;gt; 通过 session 操作数据">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-09-13T15:14:53.181Z">
+<meta property="og:updated_time" content="2017-09-22T14:23:45.957Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hibernate-基本用法1">
-<meta name="twitter:description" content="简介 hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。其优点有：1.ORM，移植性好2.缓存机制，一级和二级缓存3.简洁的 HQL缺点：1.全表映射在复杂查询时难以做到 sql 优化 Hibernate5 包依赖 通过 maven 依赖添加必须的 jar 包 &amp;lt;dependency&amp;gt;     &amp;lt;group">
+<meta name="twitter:description" content="简介 hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。其优点有：1.ORM，移植性好2.缓存机制，一级和二级缓存3.简洁的 HQL缺点：1.全表映射在复杂查询时难以做到 sql 优化 使用基本流程：添加相关依赖-&amp;gt; 做连接数据库的基本配置 -&amp;gt; 实体类与数据表的映射配置-&amp;gt; 通过 session 操作数据">
 
 
 
@@ -136,7 +136,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/09/11/hibernate-基本用法/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/09/11/hibernate-基本用法1/"/>
 
 
 
@@ -269,7 +269,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/11/hibernate-基本用法/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/11/hibernate-基本用法1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xiaomo">
@@ -360,14 +360,15 @@
       
         <p><strong>简介</strong></p>
 <p>hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。<br>其优点有：<br>1.ORM，移植性好<br>2.缓存机制，一级和二级缓存<br>3.简洁的 HQL<br>缺点：<br>1.全表映射在复杂查询时难以做到 sql 优化</p>
+<p><strong>使用基本流程：添加相关依赖-&gt; 做连接数据库的基本配置 -&gt; 实体类与数据表的映射配置-&gt; 通过 session 操作数据库</strong></p>
 <p><strong>Hibernate5 包依赖</strong></p>
 <p>通过 maven 依赖添加必须的 jar 包</p>
 <pre><code>&lt;dependency&gt;
     &lt;groupId&gt;org.hibernate&lt;/groupId&gt;
     &lt;artifactId&gt;hibernate-core&lt;/artifactId&gt;
-    &lt;version&gt;5.2.8.Final&lt;/version&gt;
+    &lt;version&gt;hibernate.version&lt;/version&gt;
 &lt;/dependency&gt;
-</code></pre><p>hibernate 是有很多功能模块的，例如：orm 、search、validate、ogm，需要使用哪些功能，才添相应的依赖，通过 hibernate 官网的快速使用向导可以找到对应的 dependency。</p>
+</code></pre><p>hibernate 是有很多功能模块的，例如：orm 、search、validate、ogm，需要使用哪些功能，才添相应的依赖，通过 hibernate <a href="http://hibernate.org/search/documentation/" target="_blank" rel="external">官网的快速使用向导可以找到对应的 dependency</a>。</p>
 <p><strong>Hibernate 配置文件</strong></p>
 <p>1.hibernate.cfg.xml(复杂配置)<br>2.hibernate.properties(简单配置)<br>3.ehcache.xml（可选，二级缓存配置）</p>
 <p>在写配置文件时，最好就是参考官网中给出的例子，一般在下载的例子项目中可以找到。配置信息主要分两部分：基础配置（连接数据的参数、数据库配置） 和 实体与数据表的映射配置。</p>
@@ -378,7 +379,12 @@
 
 &lt;hibernate-configuration&gt;
     &lt;session-factory&gt;
+        &lt;!--
+        property 标签配置各种数据库基本信息：
+        url、psw、username、driverClass
+        --&gt;
         &lt;property /&gt;
+        &lt;!--mapping 标签配置实体类映射--&gt;
         &lt;mapping /&gt;
     &lt;/session-factory&gt;
 &lt;/hibernate-configuration&gt;
@@ -388,11 +394,67 @@
   &quot;http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd&quot; &gt;
   &lt;hibernate-mapping&gt;
     &lt;class&gt;
-     //对应的实体类属性
+     &lt;!--对应的实体类属性与数据表列字段映射--&gt;
     &lt;/class&gt;
 &lt;/hibernate-mapping&gt;
 </code></pre><p>2.使用注解配置:新建对应的实体类，在类中使用注解，基本注解有如下<br>@Entity 声明一个映射实体对象<br>@Table  声明表名<br>@Id     主键<br>@GeneratedValue 主键生成策略<br>@Column 对应列名<br>@Temporal 指定时间精度<br>@Enumerated 指定枚举类型存储格式<br>@Transient 指明该字段不会被持久化</p>
+<p><strong>使用 Session 对象</strong></p>
+<p> 获取 sessionFactory ， 因为 sessionFactory 是用来创建 session 对象，在整个应用都需要用到，其作用域应该是全局的，我们一般设置为单例模式，可参考如下：</p>
+<pre><code>public class HibernateUtil {
+private static final SessionFactory sessionFactory = buildSessionFactory();
 
+private static SessionFactory buildSessionFactory() {
+    final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
+            .configure().build();
+    try{
+        return new MetadataSources(registry).buildMetadata()
+                .buildSessionFactory();
+    }catch (Exception e) {
+        e.printStackTrace();
+        StandardServiceRegistryBuilder.destroy(registry);
+    }
+    return null;
+}
+
+public static SessionFactory getSessionFactory() {
+    return sessionFactory;
+}
+</code></pre><p>通过 sessionFactory 获取 session,参考如下</p>
+<pre><code>/* session 线程不安全,不可以自动回滚和关闭事务 */
+public static Session openSession(){
+    return sessionFactory.openSession();
+}
+
+/* session 线程安全,可以自动回滚和关闭事务 */
+public static Session getCurrentSession(){
+    return sessionFactory.getCurrentSession();
+}
+</code></pre><p>调用 session 中的方法操作数据库，参考如下,具体使用查看 API</p>
+<pre><code>try{
+    session.beginTransation();
+
+    session.persist(pojo);
+    session.update(pojo);
+    session.delete(pojo);
+    session.get(calzz,id);
+    session.createQuery(sql).list();
+
+    session.getTransation().commit();
+}catch{
+    session.getTransation().rollback();
+}finally{
+    session.close();
+}
+</code></pre><p>小结：上面记录了添加依赖 - 配置 - 使用 session 操作数据库的主线，要想用好 hibernate 还需要理解许多相关的细节。</p>
+<p>HQL ： hibernate 的 sql 语句</p>
+<pre><code>Query query = session.createQuery(hql);
+</code></pre><p>获得 query 对象后，可以通过调用其中的方法完成相关操作，类似于使用 PrepareStatement。hql 语法，类似于 sql , 不同的是引用数据表名变为引用相对应的实体类类名，列字段变为实体类的属性。</p>
+<pre><code>&lt;!--sql--&gt;
+select 列名 from 表名 where xxx group by xxx having xxx order by xxx
+
+&lt;!--hql--&gt;
+select className from className where xxx group by xxx having xxx order by xxx
+</code></pre>
       
     </div>
     
@@ -420,6 +482,22 @@
       
       
 
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/09/23/hibernate-基本用法2/" rel="prev" title="hibernate-基本用法2">
+                hibernate-基本用法2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
       
 
       
@@ -487,7 +565,7 @@
             
               <a href="/archives/">
             
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
