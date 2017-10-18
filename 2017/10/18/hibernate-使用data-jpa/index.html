@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="orm,hibernate,data jpa," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="简介笔者在前面的文章中提及到过 spring-data-jpa ,什么是 jpa ,什么是 spring-data-jpa 。jpa 是 Java Persistence API的简称，是 javaEE 的 orm 规范，spring-data-jpa 是依照 jap 规范的关于数据持久层的一系列接口，在 spring 中是这样介绍 data-jpa 的：spring-data-jpa 是 spr">
+<meta name="keywords" content="orm,hibernate,data jpa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hibernate-使用data jpa">
+<meta property="og:url" content="http://yoursite.com/2017/10/18/hibernate-使用data-jpa/index.html">
+<meta property="og:site_name" content="xiaomo">
+<meta property="og:description" content="简介笔者在前面的文章中提及到过 spring-data-jpa ,什么是 jpa ,什么是 spring-data-jpa 。jpa 是 Java Persistence API的简称，是 javaEE 的 orm 规范，spring-data-jpa 是依照 jap 规范的关于数据持久层的一系列接口，在 spring 中是这样介绍 data-jpa 的：spring-data-jpa 是 spr">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-10-18T14:21:16.811Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hibernate-使用data jpa">
+<meta name="twitter:description" content="简介笔者在前面的文章中提及到过 spring-data-jpa ,什么是 jpa ,什么是 spring-data-jpa 。jpa 是 Java Persistence API的简称，是 javaEE 的 orm 规范，spring-data-jpa 是依照 jap 规范的关于数据持久层的一系列接口，在 spring 中是这样介绍 data-jpa 的：spring-data-jpa 是 spr">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/10/18/hibernate-使用data-jpa/"/>
+
+
+
+
+
+  <title>hibernate-使用data jpa | xiaomo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">xiaomo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">简简单单 做你想做的</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/18/hibernate-使用data-jpa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaomo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaomo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">hibernate-使用data jpa</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T22:17:35+08:00">
+                2017-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>简介</strong><br>笔者在前面的文章中提及到过 spring-data-jpa ,什么是 jpa ,什么是 spring-data-jpa 。jpa 是 Java Persistence API的简称，是 javaEE 的 orm 规范，spring-data-jpa 是依照 jap 规范的关于数据持久层的一系列接口，在 spring 中是这样介绍 data-jpa 的：spring-data-jpa 是 spring 数据持久层的一部分，能够更轻松方便实现基于 JPA 的库，更容易构建出 spring 应用。说白了，spring-data-jpa 让我们更方便地操作持久层。</p>
+<p><strong>使用</strong><br>1.使用 data-jpa 主要是要使用 spring 提供的一系列 Repository 接口。</p>
+<pre><code>// 接口族
+Repository&lt;T, ID extends Serializable&gt;
+    CrudRepository&lt;T, ID extends Serializable&gt;
+        PagingAndSortingRepository&lt;T, ID extends Serializable&gt;
+            JpaRepository&lt;T, ID extends Serializable&gt;
+
+// 用于动态查询            
+JpaSpecificationExecutor&lt;T&gt;
+</code></pre><p>2.先来看看这些接口声明了那些方法</p>
+<p>空接口</p>
+<pre><code>public interface Repository&lt;T, ID extends Serializable&gt; {}
+</code></pre><p>CrudRepository 声明了基本的 CRUD 方法</p>
+<pre><code>public interface CrudRepository&lt;T, ID extends Serializable&gt; extends Repository&lt;T, ID&gt; {
+    // 保存或更新
+    &lt;S extends T&gt; S save(S var1);
+    // 批量保存或更新
+    &lt;S extends T&gt; Iterable&lt;S&gt; save(Iterable&lt;S&gt; var1);
+
+    // 根据主键查找
+    T findOne(ID var1);
+    // 根据主键判断是否存在
+    boolean exists(ID var1);
+
+    // 查找所有符合条件的
+    Iterable&lt;T&gt; findAll();
+    Iterable&lt;T&gt; findAll(Iterable&lt;ID&gt; var1);
+
+    // 统计总量
+    long count();
+
+    // 根据主键或其他条件删除
+    void delete(ID var1);
+    void delete(T var1);
+    void delete(Iterable&lt;? extends T&gt; var1);
+    void deleteAll();
+}
+</code></pre><p>PagingAndSortingRepository 接口继承 CrudRepository ，主要增加了分页和排序功能</p>
+<pre><code>public interface PagingAndSortingRepository&lt;T, ID extends Serializable&gt; extends CrudRepository&lt;T, ID&gt; {
+    // 排序查找
+    Iterable&lt;T&gt; findAll(Sort var1);
+    // 分页查找
+    Page&lt;T&gt; findAll(Pageable var1);
+}
+</code></pre><p>JpaRepository 接口继承 PagingAndSortingRepository 接口，扩展了一些返回参数类型为 List 的方法</p>
+<pre><code>public interface JpaRepository&lt;T, ID extends Serializable&gt; extends PagingAndSortingRepository&lt;T, ID&gt;, QueryByExampleExecutor&lt;T&gt; {
+    List&lt;T&gt; findAll();
+
+    List&lt;T&gt; findAll(Sort var1);
+
+    List&lt;T&gt; findAll(Iterable&lt;ID&gt; var1);
+
+    &lt;S extends T&gt; List&lt;S&gt; save(Iterable&lt;S&gt; var1);
+
+    void flush();
+
+    &lt;S extends T&gt; S saveAndFlush(S var1);
+
+    void deleteInBatch(Iterable&lt;T&gt; var1);
+
+    void deleteAllInBatch();
+
+    T getOne(ID var1);
+
+    &lt;S extends T&gt; List&lt;S&gt; findAll(Example&lt;S&gt; var1);
+
+    &lt;S extends T&gt; List&lt;S&gt; findAll(Example&lt;S&gt; var1, Sort var2);
+}
+</code></pre><p>JpaSpecificationExecutor 是一个高级动态查询接口，不是 Repository 系列中的子接口</p>
+<pre><code>public interface JpaSpecificationExecutor&lt;T&gt; {
+    T findOne(Specification&lt;T&gt; var1);
+
+    List&lt;T&gt; findAll(Specification&lt;T&gt; var1);
+
+    Page&lt;T&gt; findAll(Specification&lt;T&gt; var1, Pageable var2);
+
+    List&lt;T&gt; findAll(Specification&lt;T&gt; var1, Sort var2);
+
+    long count(Specification&lt;T&gt; var1);
+}
+</code></pre><p>3.如何使用这些接口，你仅需要继承这些接口即可，具体实现由 data-jpa 库帮你实现，和使用 mybatis 差不过。举个栗子：</p>
+<pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User,Long&gt; {}
+</code></pre><p>这样就可以通过 spring 自动注入到类中使用了，你可以调用上述接口中声明的任意方法完成持久化操作。一般上述方法就可以满足一般的需求，但是我们可不可以扩展这些接口呢，答案是可以的，不过在扩展接口时的方法命名需要遵循 data-jpa 的规范约束，例如：</p>
+<pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User,Long&gt; {
+
+    // 根据 userId 查找 user
+    User findByUserId(String userId);
+    // 根据 username 查找 user
+    User findByUsername(String username);
+    User findByUsernameAndAge(String username,int age);
+}
+</code></pre><p>基本是使用：findBy,deleteBy,countBy,existsBy,orderBy,between ,distinct,and,or…,实体类属性名 等这些关键字拼接起来。当这些都不满足需求时，就可以通过使用 @Query 注解自己拼 hql 了。例如：</p>
+<pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User,Long&gt; {
+
+    User findByUserId(String userId);
+    User findUserByUsername(String username);
+
+    @Query(&quot;select u from User u join u.department dept where dept.departmentId = :deptId&quot;)
+    Page&lt;User&gt; findByDeptId(@Param(&quot;deptId&quot;) String deptId, Pageable pageable);
+
+    @Query(&quot;select u from User u join  u.roles role where role.roleId = :roleId&quot;)
+    Page&lt;User&gt; findByRoleId(@Param(&quot;roleId&quot;) Long roleId, Pageable pageable);
+
+    @Query(&quot;select count(u.userId) from User u join u.department dept where dept.departmentId = :deptId&quot;)
+    int countByDeptId(@Param(&quot;deptId&quot;) String deptId);
+
+    /*注意update需要modifying*/
+    @Modifying
+    @Query(&quot;update User u set u.flag = :flag where u.userId = :userId&quot;)
+    int updateUserFlag(@Param(&quot;flag&quot;) Integer flag, @Param(&quot;userId&quot;) String userId);
+
+}
+</code></pre><p>一般在做联表查询是就需要使用 hql 了，hql 也是面向对象的，实体类等价于对应的表，通过打点访问类中的关联实体类属性即可做到联表。此外，很多时候我们需要动态查询，以上方案 sql 都是固定的，怎样才能动态拼接 sql 实现动态查询呢，这就要使用到 JpaSpecificationExecutor 了。再来看看这个接口的方法：</p>
+<pre><code> public interface JpaSpecificationExecutor&lt;T&gt; {
+    T findOne(Specification&lt;T&gt; var1);
+
+    List&lt;T&gt; findAll(Specification&lt;T&gt; var1);
+
+    Page&lt;T&gt; findAll(Specification&lt;T&gt; var1, Pageable var2);
+
+    List&lt;T&gt; findAll(Specification&lt;T&gt; var1, Sort var2);
+
+    long count(Specification&lt;T&gt; var1);
+}
+</code></pre><p>在声明的方法中有三个参数：Sort，Pageable ，Specification<t> ，关键是最后的这个。Specification 就是动态拼接的 sql 的数据结构，在使用动态查询，我们需要做的是如何创建 Specification 对象。</t></p>
+<pre><code>public interface Specification&lt;T&gt; {
+    Predicate toPredicate(Root&lt;T&gt; var1, CriteriaQuery&lt;?&gt; var2, CriteriaBuilder var3);
+}
+</code></pre><p>Specification 也是一个接口，其中仅有一个方法 toPredicate ， 实际上 Predicate 才真正是动态拼接 sql 的数据结构。在组装 sql 时，使用的是 root,criteriaQuery,criteriaBuilder 这三个对象。例如：</p>
+<pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User,Long&gt;,JpaSpecificationExecutor&lt;User&gt; {
+
+
+    public static class Specs{
+
+        /**
+         * 根据查询条件构造动态查询sql
+         * username
+         * userId
+         * deptId
+         * roleId
+         *
+         *root : 可以获取实体类中的属性名（等价数据库中的表，列）
+         *criteriaQuery：构建子查询（等价于使用 orderBy,groupBy 等）
+         *criteriaBuilder：构建 predicate 对象，构建 sql 片段
+         *
+         */
+        public static Specification&lt;User&gt; newQueryParams(Map&lt;String,String&gt; paramsMap){
+
+            return new Specification&lt;User&gt;() {
+                @Override
+                public Predicate toPredicate(Root&lt;User&gt; root, CriteriaQuery&lt;?&gt; criteriaQuery, CriteriaBuilder criteriaBuilder) {
+
+                    // 创建 Predicate
+                    Predicate predicate = criteriaBuilder.conjunction();
+
+                    // 组装条件
+                    if(StringUtils.isNotBlank(paramsMap.get(&quot;username&quot;))){
+                        predicate.getExpressions().add(criteriaBuilder.like(root.&lt;String&gt;get(&quot;username&quot;)
+                                ,&quot;%&quot;+ paramsMap.get(&quot;username&quot;) + &quot;%&quot;));
+                    }
+                    if(StringUtils.isNotBlank(paramsMap.get(&quot;userId&quot;))){
+                        predicate.getExpressions().add(criteriaBuilder.equal(root.&lt;String&gt;get(&quot;userId&quot;),paramsMap.get(&quot;userId&quot;)));
+                    }
+                    if(StringUtils.isNotBlank(paramsMap.get(&quot;deptId&quot;))){
+                        // 注意联表的问题
+                        predicate.getExpressions().add(criteriaBuilder.equal(root.get(&quot;department&quot;).get(&quot;departmentId&quot;),paramsMap.get(&quot;deptId&quot;)));
+                    }
+                    if(StringUtils.isNotBlank(paramsMap.get(&quot;roleId&quot;))){
+                        predicate.getExpressions().add(criteriaBuilder.equal(root.join(&quot;roles&quot;, JoinType.LEFT).get(&quot;roleId&quot;).as(String.class), paramsMap.get(&quot;roleId&quot;)));
+                    }
+
+                    return predicate;
+                }
+            };
+
+        }
+    }
+}
+</code></pre><p>PS: 在 hibernate 中的级联注解中，一般使用 CascadeType.ALL，如@OneToMany(cascade={CascadeType.ALL}) , 但是往往不需要级联删除，这是可以使用 hibernate 提供的注解：@Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE})</p>
+<p>PS : <a href="https://github.com/spring-projects/spring-data-examples" target="_blank" rel="external">spring-data-example 多看官方栗子，多看官方栗子，多看官方栗子</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/orm-hibernate-data-jpa/" rel="tag"># orm,hibernate,data jpa</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/23/hibernate-基本用法2/" rel="next" title="hibernate-基本用法2">
+                <i class="fa fa-chevron-left"></i> hibernate-基本用法2
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/18/hibernate-实体类状态/" rel="prev" title="hibernate-实体类状态">
+                hibernate-实体类状态 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          
+            <img class="site-author-image" itemprop="image"
+              src="/uploads/me.jpg"
+              alt="xiaomo" />
+          
+            <p class="site-author-name" itemprop="name">xiaomo</p>
+            <p class="site-description motion-element" itemprop="description">任何时候不会晚</p>
+        </div>
+
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+            
+              <a href="/archives/">
+            
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">xiaomo</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

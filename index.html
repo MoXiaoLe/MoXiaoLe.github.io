@@ -268,6 +268,554 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/18/hibernate-实体类状态/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaomo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaomo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/10/18/hibernate-实体类状态/" itemprop="url">hibernate-实体类状态</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T22:21:52+08:00">
+                2017-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>前言</strong><br>hibernate 拿起来用简单，但是用起来很扎心，经常报一些不能理解的错误。很大因素是我不理解 hibernate。hibernate 中的实体类有三大状态：瞬时状态（transient），持久化状态（persistent），游离状态（detached）。理解了这三个状态，就可知道调用一个方法，究竟发了几条 sql ,干了些什么。</p>
+<p>瞬时状态： 不在 session 缓存中，没有保存在数据库中<br>持久化状态： 在 session 缓存中（被 session 托管），保存在数据库中<br>游离状态：不在 session 缓存中，保存在数据库中(离线状态)</p>
+<p>PS: hibernate 二级缓存（session 缓存）是默认开启的，在向数据库查询时先查看会缓存中有没有。</p>
+<p>各种状态转换：<br><img src="/uploads/entity_status.png" alt="enter description here" title="entity_status.png"></p>
+<p><strong>结论</strong><br>1.瞬时状态，游离状态，相当于一个普通对象，没有被 session 托管，操作不影响数据库。<br>2.持久化状态，在 session 缓存中，被 session 托管，相关操作会影响数据库</p>
+<p><img src="/uploads/realation.png" alt="enter description here" title="realation.png"></p>
+<p><strong>测试</strong><br>实体类</p>
+<pre><code>@Entity
+@Table(name = &quot;t_user&quot;)
+public class UserEntity {
+
+    private Long id;
+    private String name;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long getId() {
+        return id;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+}
+</code></pre><p>1.如何维护 GenerationType.IDENTITY 策略 （主键自增ID）</p>
+<p>插入一个 user ，不设置主键ID值，发出sql: Hibernate: insert into t_user (name) values (?)</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+userEntity.setName(&quot;xioamo&quot;);
+session.save(userEntity);
+
+session.getTransaction().commit();
+</code></pre><p>插入一个 user ， 设置主键ID值，发出 sql: Hibernate: insert into t_user (name) values (?)</p>
+<pre><code>Session session = HibernateUtil.openSession();
+ session.beginTransaction();
+
+ UserEntity userEntity = new UserEntity();
+ userEntity.setName(&quot;xiaoming&quot;);
+ userEntity.setId(100);
+ session.save(userEntity);
+
+ session.getTransaction().commit();
+</code></pre><p>通过测试可以知道，无论是都指定主键ID的值，都不会把id 值拼接到 sql 中，也就是说主键自增ID策略，完全交给 mysql 自己来处理。你无法指定特定的主键ID。</p>
+<p>2.瞬时状态，离线状态对象通过 setters 方法修改对象属性，不会更新到数据库。持久化状态通过通过 setters 方法修改对象属性，会更新到数据库。</p>
+<p>userEntity 为瞬时状态，调用setters 控制台没有发出 sql </p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+userEntity.setName(&quot;xiaomo&quot;);
+
+session.getTransaction().commit();
+</code></pre><p>save(userEntity) 后 userEntity 转为持久化状态。发出sql: Hibernate: insert into t_user (name) values (?)</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+userEntity.setName(&quot;xiaomo&quot;);
+session.save(userEntity);
+
+session.getTransaction().commit();
+</code></pre><p>在 save 后 userEntity 是持久状态，修改属性，发现发出一条 update sql<br>sql:<br>Hibernate: insert into t_user (name) values (?)<br>Hibernate: update t_user set name=? where id=?</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+userEntity.setName(&quot;xiaomo&quot;);
+session.save(userEntity);
+userEntity.setName(&quot;xiaoming&quot;);
+
+session.getTransaction().commit();
+</code></pre><p>相对于上面的例子在事务提交前调用 clear 清除缓存，转换为游离状态，发现没有再发出 update sql。<br>sql:<br>Hibernate: insert into t_user (address, email, name) values (?, ?, ?)</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+userEntity.setName(&quot;xiaomo&quot;);
+session.save(userEntity);
+userEntity.setName(&quot;xiaoming&quot;);
+session.clear();
+
+session.getTransaction().commit();   
+</code></pre><p>通过对比上面例子可以说明，在事务提交前 hibernate 会比对持久化状态的对象，发现当前对象内容反生改变（实际上当前对象和 session 缓存的对象是同一个，至于如何发现对象内容发生改变还没有理解清楚），则会以当前对象为准更新到数据库。而对于瞬时状态和游离状态的对象则不作处理。</p>
+<p>3.在会话中多次save 或 update ，其运行结果：<br>Hibernate: insert into t_user (name) values (?)<br>UserEntity{id=15, name=’xiaomo’}<br>UserEntity{id=15, name=’xiaohong’}<br>Hibernate: update t_user set name=? where id=?</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+
+userEntity.setName(&quot;xiaomo&quot;);
+session.save(userEntity);
+System.out.println(session.get(UserEntity.class,userEntity.getId()));
+
+userEntity.setName(&quot;xiaoming&quot;);
+session.save(userEntity);
+
+userEntity.setName(&quot;xiaohong&quot;);
+session.update(userEntity);
+
+System.out.println(session.get(UserEntity.class,userEntity.getId()));
+session.getTransaction().commit();
+</code></pre><p>从上面的测试可以发现只发出了两条 sql ，对于持久化状态的对象，调用 save 或 update 是不起作用的，而是在事务提交前检查对象是否改变，若改变则更新到数据库，通过这样来维护数据库与 session 缓存对象的一致性，大概更高效吧。</p>
+<p>4.执行 update()，只会把对象由非持久状态（如果是非持久状态）转换为持久化状态，真正的 update sql 是在事务提交时发出的。<br>结果：<br>before update run<br>after update run<br>Hibernate: update t_user set name=? where id=?</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+
+userEntity.setId(2l);
+System.out.println(&quot;before update run&quot;);
+session.update(userEntity);
+System.out.println(&quot;after update run&quot;);
+
+session.getTransaction().commit();
+</code></pre><p><strong>小结：当前被操纵的 java 实体类对象，如果是瞬时状态或者游离状态，则此时没有与数据库关联，如果是持久化状态，该对象（其实就是session缓存的对象）与session 相关联，改变对象属性会更新到数据库。更新到数据库是发生在事务提交的时候。</strong></p>
+<p><img src="/uploads/realation.png" alt="enter description here" title="realation.png"></p>
+<p>以上是单表的测试，可以合理猜测在关联表中，实体类，关联实体类的都几个状态转换与含义都一样的。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/18/hibernate-使用data-jpa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xiaomo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="xiaomo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/10/18/hibernate-使用data-jpa/" itemprop="url">hibernate-使用data jpa</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T22:17:35+08:00">
+                2017-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><strong>简介</strong><br>笔者在前面的文章中提及到过 spring-data-jpa ,什么是 jpa ,什么是 spring-data-jpa 。jpa 是 Java Persistence API的简称，是 javaEE 的 orm 规范，spring-data-jpa 是依照 jap 规范的关于数据持久层的一系列接口，在 spring 中是这样介绍 data-jpa 的：spring-data-jpa 是 spring 数据持久层的一部分，能够更轻松方便实现基于 JPA 的库，更容易构建出 spring 应用。说白了，spring-data-jpa 让我们更方便地操作持久层。</p>
+<p><strong>使用</strong><br>1.使用 data-jpa 主要是要使用 spring 提供的一系列 Repository 接口。</p>
+<pre><code>// 接口族
+Repository&lt;T, ID extends Serializable&gt;
+    CrudRepository&lt;T, ID extends Serializable&gt;
+        PagingAndSortingRepository&lt;T, ID extends Serializable&gt;
+            JpaRepository&lt;T, ID extends Serializable&gt;
+
+// 用于动态查询            
+JpaSpecificationExecutor&lt;T&gt;
+</code></pre><p>2.先来看看这些接口声明了那些方法</p>
+<p>空接口</p>
+<pre><code>public interface Repository&lt;T, ID extends Serializable&gt; {}
+</code></pre><p>CrudRepository 声明了基本的 CRUD 方法</p>
+<pre><code>public interface CrudRepository&lt;T, ID extends Serializable&gt; extends Repository&lt;T, ID&gt; {
+    // 保存或更新
+    &lt;S extends T&gt; S save(S var1);
+    // 批量保存或更新
+    &lt;S extends T&gt; Iterable&lt;S&gt; save(Iterable&lt;S&gt; var1);
+
+    // 根据主键查找
+    T findOne(ID var1);
+    // 根据主键判断是否存在
+    boolean exists(ID var1);
+
+    // 查找所有符合条件的
+    Iterable&lt;T&gt; findAll();
+    Iterable&lt;T&gt; findAll(Iterable&lt;ID&gt; var1);
+
+    // 统计总量
+    long count();
+
+    // 根据主键或其他条件删除
+    void delete(ID var1);
+    void delete(T var1);
+    void delete(Iterable&lt;? extends T&gt; var1);
+    void deleteAll();
+}
+</code></pre><p>PagingAndSortingRepository 接口继承 CrudRepository ，主要增加了分页和排序功能</p>
+<pre><code>public interface PagingAndSortingRepository&lt;T, ID extends Serializable&gt; extends CrudRepository&lt;T, ID&gt; {
+    // 排序查找
+    Iterable&lt;T&gt; findAll(Sort var1);
+    // 分页查找
+    Page&lt;T&gt; findAll(Pageable var1);
+}
+</code></pre><p>JpaRepository 接口继承 PagingAndSortingRepository 接口，扩展了一些返回参数类型为 List 的方法</p>
+<pre><code>public interface JpaRepository&lt;T, ID extends Serializable&gt; extends PagingAndSortingRepository&lt;T, ID&gt;, QueryByExampleExecutor&lt;T&gt; {
+    List&lt;T&gt; findAll();
+
+    List&lt;T&gt; findAll(Sort var1);
+
+    List&lt;T&gt; findAll(Iterable&lt;ID&gt; var1);
+
+    &lt;S extends T&gt; List&lt;S&gt; save(Iterable&lt;S&gt; var1);
+
+    void flush();
+
+    &lt;S extends T&gt; S saveAndFlush(S var1);
+
+    void deleteInBatch(Iterable&lt;T&gt; var1);
+
+    void deleteAllInBatch();
+
+    T getOne(ID var1);
+
+    &lt;S extends T&gt; List&lt;S&gt; findAll(Example&lt;S&gt; var1);
+
+    &lt;S extends T&gt; List&lt;S&gt; findAll(Example&lt;S&gt; var1, Sort var2);
+}
+</code></pre><p>JpaSpecificationExecutor 是一个高级动态查询接口，不是 Repository 系列中的子接口</p>
+<pre><code>public interface JpaSpecificationExecutor&lt;T&gt; {
+    T findOne(Specification&lt;T&gt; var1);
+
+    List&lt;T&gt; findAll(Specification&lt;T&gt; var1);
+
+    Page&lt;T&gt; findAll(Specification&lt;T&gt; var1, Pageable var2);
+
+    List&lt;T&gt; findAll(Specification&lt;T&gt; var1, Sort var2);
+
+    long count(Specification&lt;T&gt; var1);
+}
+</code></pre><p>3.如何使用这些接口，你仅需要继承这些接口即可，具体实现由 data-jpa 库帮你实现，和使用 mybatis 差不过。举个栗子：</p>
+<pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User,Long&gt; {}
+</code></pre><p>这样就可以通过 spring 自动注入到类中使用了，你可以调用上述接口中声明的任意方法完成持久化操作。一般上述方法就可以满足一般的需求，但是我们可不可以扩展这些接口呢，答案是可以的，不过在扩展接口时的方法命名需要遵循 data-jpa 的规范约束，例如：</p>
+<pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User,Long&gt; {
+
+    // 根据 userId 查找 user
+    User findByUserId(String userId);
+    // 根据 username 查找 user
+    User findByUsername(String username);
+    User findByUsernameAndAge(String username,int age);
+}
+</code></pre><p>基本是使用：findBy,deleteBy,countBy,existsBy,orderBy,between ,distinct,and,or…,实体类属性名 等这些关键字拼接起来。当这些都不满足需求时，就可以通过使用 @Query 注解自己拼 hql 了。例如：</p>
+<pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User,Long&gt; {
+
+    User findByUserId(String userId);
+    User findUserByUsername(String username);
+
+    @Query(&quot;select u from User u join u.department dept where dept.departmentId = :deptId&quot;)
+    Page&lt;User&gt; findByDeptId(@Param(&quot;deptId&quot;) String deptId, Pageable pageable);
+
+    @Query(&quot;select u from User u join  u.roles role where role.roleId = :roleId&quot;)
+    Page&lt;User&gt; findByRoleId(@Param(&quot;roleId&quot;) Long roleId, Pageable pageable);
+
+    @Query(&quot;select count(u.userId) from User u join u.department dept where dept.departmentId = :deptId&quot;)
+    int countByDeptId(@Param(&quot;deptId&quot;) String deptId);
+
+    /*注意update需要modifying*/
+    @Modifying
+    @Query(&quot;update User u set u.flag = :flag where u.userId = :userId&quot;)
+    int updateUserFlag(@Param(&quot;flag&quot;) Integer flag, @Param(&quot;userId&quot;) String userId);
+
+}
+</code></pre><p>一般在做联表查询是就需要使用 hql 了，hql 也是面向对象的，实体类等价于对应的表，通过打点访问类中的关联实体类属性即可做到联表。此外，很多时候我们需要动态查询，以上方案 sql 都是固定的，怎样才能动态拼接 sql 实现动态查询呢，这就要使用到 JpaSpecificationExecutor 了。再来看看这个接口的方法：</p>
+<pre><code> public interface JpaSpecificationExecutor&lt;T&gt; {
+    T findOne(Specification&lt;T&gt; var1);
+
+    List&lt;T&gt; findAll(Specification&lt;T&gt; var1);
+
+    Page&lt;T&gt; findAll(Specification&lt;T&gt; var1, Pageable var2);
+
+    List&lt;T&gt; findAll(Specification&lt;T&gt; var1, Sort var2);
+
+    long count(Specification&lt;T&gt; var1);
+}
+</code></pre><p>在声明的方法中有三个参数：Sort，Pageable ，Specification<t> ，关键是最后的这个。Specification 就是动态拼接的 sql 的数据结构，在使用动态查询，我们需要做的是如何创建 Specification 对象。</t></p>
+<pre><code>public interface Specification&lt;T&gt; {
+    Predicate toPredicate(Root&lt;T&gt; var1, CriteriaQuery&lt;?&gt; var2, CriteriaBuilder var3);
+}
+</code></pre><p>Specification 也是一个接口，其中仅有一个方法 toPredicate ， 实际上 Predicate 才真正是动态拼接 sql 的数据结构。在组装 sql 时，使用的是 root,criteriaQuery,criteriaBuilder 这三个对象。例如：</p>
+<pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User,Long&gt;,JpaSpecificationExecutor&lt;User&gt; {
+
+
+    public static class Specs{
+
+        /**
+         * 根据查询条件构造动态查询sql
+         * username
+         * userId
+         * deptId
+         * roleId
+         *
+         *root : 可以获取实体类中的属性名（等价数据库中的表，列）
+         *criteriaQuery：构建子查询（等价于使用 orderBy,groupBy 等）
+         *criteriaBuilder：构建 predicate 对象，构建 sql 片段
+         *
+         */
+        public static Specification&lt;User&gt; newQueryParams(Map&lt;String,String&gt; paramsMap){
+
+            return new Specification&lt;User&gt;() {
+                @Override
+                public Predicate toPredicate(Root&lt;User&gt; root, CriteriaQuery&lt;?&gt; criteriaQuery, CriteriaBuilder criteriaBuilder) {
+
+                    // 创建 Predicate
+                    Predicate predicate = criteriaBuilder.conjunction();
+
+                    // 组装条件
+                    if(StringUtils.isNotBlank(paramsMap.get(&quot;username&quot;))){
+                        predicate.getExpressions().add(criteriaBuilder.like(root.&lt;String&gt;get(&quot;username&quot;)
+                                ,&quot;%&quot;+ paramsMap.get(&quot;username&quot;) + &quot;%&quot;));
+                    }
+                    if(StringUtils.isNotBlank(paramsMap.get(&quot;userId&quot;))){
+                        predicate.getExpressions().add(criteriaBuilder.equal(root.&lt;String&gt;get(&quot;userId&quot;),paramsMap.get(&quot;userId&quot;)));
+                    }
+                    if(StringUtils.isNotBlank(paramsMap.get(&quot;deptId&quot;))){
+                        // 注意联表的问题
+                        predicate.getExpressions().add(criteriaBuilder.equal(root.get(&quot;department&quot;).get(&quot;departmentId&quot;),paramsMap.get(&quot;deptId&quot;)));
+                    }
+                    if(StringUtils.isNotBlank(paramsMap.get(&quot;roleId&quot;))){
+                        predicate.getExpressions().add(criteriaBuilder.equal(root.join(&quot;roles&quot;, JoinType.LEFT).get(&quot;roleId&quot;).as(String.class), paramsMap.get(&quot;roleId&quot;)));
+                    }
+
+                    return predicate;
+                }
+            };
+
+        }
+    }
+}
+</code></pre><p>PS: 在 hibernate 中的级联注解中，一般使用 CascadeType.ALL，如@OneToMany(cascade={CascadeType.ALL}) , 但是往往不需要级联删除，这是可以使用 hibernate 提供的注解：@Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE})</p>
+<p>PS : <a href="https://github.com/spring-projects/spring-data-examples" target="_blank" rel="external">spring-data-example 多看官方栗子，多看官方栗子，多看官方栗子</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/23/hibernate-基本用法2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -934,7 +1482,7 @@ select className from className where xxx group by xxx having xxx order by xxx
             
               <a href="/archives/">
             
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -956,7 +1504,7 @@ select className from className where xxx group by xxx having xxx order by xxx
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

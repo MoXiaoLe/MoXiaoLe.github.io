@@ -95,18 +95,22 @@
 
 
 
-<meta name="description" content="简介 hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。其优点有：1.ORM，移植性好2.缓存机制，一级和二级缓存3.简洁的 HQL缺点：1.全表映射在复杂查询时难以做到 sql 优化 使用基本流程：添加相关依赖-&amp;gt; 做连接数据库的基本配置 -&amp;gt; 实体类与数据表的映射配置-&amp;gt; 通过 session 操作数据">
+<meta name="description" content="前言hibernate 拿起来用简单，但是用起来很扎心，经常报一些不能理解的错误。很大因素是我不理解 hibernate。hibernate 中的实体类有三大状态：瞬时状态（transient），持久化状态（persistent），游离状态（detached）。理解了这三个状态，就可知道调用一个方法，究竟发了几条 sql ,干了些什么。 瞬时状态： 不在 session 缓存中，没有保存在数据库中">
 <meta name="keywords" content="orm,hibernate">
 <meta property="og:type" content="article">
-<meta property="og:title" content="hibernate-基本用法1">
-<meta property="og:url" content="http://yoursite.com/2017/09/11/hibernate-基本用法1/index.html">
+<meta property="og:title" content="hibernate-实体类状态">
+<meta property="og:url" content="http://yoursite.com/2017/10/18/hibernate-实体类状态/index.html">
 <meta property="og:site_name" content="xiaomo">
-<meta property="og:description" content="简介 hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。其优点有：1.ORM，移植性好2.缓存机制，一级和二级缓存3.简洁的 HQL缺点：1.全表映射在复杂查询时难以做到 sql 优化 使用基本流程：添加相关依赖-&amp;gt; 做连接数据库的基本配置 -&amp;gt; 实体类与数据表的映射配置-&amp;gt; 通过 session 操作数据">
+<meta property="og:description" content="前言hibernate 拿起来用简单，但是用起来很扎心，经常报一些不能理解的错误。很大因素是我不理解 hibernate。hibernate 中的实体类有三大状态：瞬时状态（transient），持久化状态（persistent），游离状态（detached）。理解了这三个状态，就可知道调用一个方法，究竟发了几条 sql ,干了些什么。 瞬时状态： 不在 session 缓存中，没有保存在数据库中">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-09-22T14:23:45.957Z">
+<meta property="og:image" content="http://yoursite.com/uploads/entity_status.png">
+<meta property="og:image" content="http://yoursite.com/uploads/realation.png">
+<meta property="og:image" content="http://yoursite.com/uploads/realation.png">
+<meta property="og:updated_time" content="2017-10-18T14:25:48.568Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="hibernate-基本用法1">
-<meta name="twitter:description" content="简介 hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。其优点有：1.ORM，移植性好2.缓存机制，一级和二级缓存3.简洁的 HQL缺点：1.全表映射在复杂查询时难以做到 sql 优化 使用基本流程：添加相关依赖-&amp;gt; 做连接数据库的基本配置 -&amp;gt; 实体类与数据表的映射配置-&amp;gt; 通过 session 操作数据">
+<meta name="twitter:title" content="hibernate-实体类状态">
+<meta name="twitter:description" content="前言hibernate 拿起来用简单，但是用起来很扎心，经常报一些不能理解的错误。很大因素是我不理解 hibernate。hibernate 中的实体类有三大状态：瞬时状态（transient），持久化状态（persistent），游离状态（detached）。理解了这三个状态，就可知道调用一个方法，究竟发了几条 sql ,干了些什么。 瞬时状态： 不在 session 缓存中，没有保存在数据库中">
+<meta name="twitter:image" content="http://yoursite.com/uploads/entity_status.png">
 
 
 
@@ -136,13 +140,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/09/11/hibernate-基本用法1/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/10/18/hibernate-实体类状态/"/>
 
 
 
 
 
-  <title>hibernate-基本用法1 | xiaomo</title>
+  <title>hibernate-实体类状态 | xiaomo</title>
   
 
 
@@ -269,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/11/hibernate-基本用法1/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/18/hibernate-实体类状态/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xiaomo">
@@ -286,7 +290,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">hibernate-基本用法1</h1>
+          <h1 class="post-title" itemprop="name headline">hibernate-实体类状态</h1>
         
 
         <div class="post-meta">
@@ -298,8 +302,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-11T23:40:40+08:00">
-                2017-09-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T22:21:52+08:00">
+                2017-10-18
               </time>
             
 
@@ -308,28 +312,6 @@
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/hibernate/" itemprop="url" rel="index">
-                    <span itemprop="name">hibernate</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -358,103 +340,132 @@
       
 
       
-        <p><strong>简介</strong></p>
-<p>hibernate 是一个开源的对象关系映射框架，对 JDBC 进行的轻量级的封装，允许我们以面向对象编程方式去操作数据库。<br>其优点有：<br>1.ORM，移植性好<br>2.缓存机制，一级和二级缓存<br>3.简洁的 HQL<br>缺点：<br>1.全表映射在复杂查询时难以做到 sql 优化</p>
-<p><strong>使用基本流程：添加相关依赖-&gt; 做连接数据库的基本配置 -&gt; 实体类与数据表的映射配置-&gt; 通过 session 操作数据库</strong></p>
-<p><strong>Hibernate5 包依赖</strong></p>
-<p>通过 maven 依赖添加必须的 jar 包</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;org.hibernate&lt;/groupId&gt;
-    &lt;artifactId&gt;hibernate-core&lt;/artifactId&gt;
-    &lt;version&gt;hibernate.version&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>hibernate 是有很多功能模块的，例如：orm 、search、validate、ogm，需要使用哪些功能，才添相应的依赖，通过 hibernate <a href="http://hibernate.org/search/documentation/" target="_blank" rel="external">官网的快速使用向导可以找到对应的 dependency</a>。</p>
-<p><strong>Hibernate 配置文件</strong></p>
-<p>1.hibernate.cfg.xml(复杂配置)<br>2.hibernate.properties(简单配置)<br>3.ehcache.xml（可选，二级缓存配置）</p>
-<p>在写配置文件时，最好就是参考官网中给出的例子，一般在下载的例子项目中可以找到。配置信息主要分两部分：基础配置（连接数据的参数、数据库配置） 和 实体与数据表的映射配置。</p>
-<p>基础配置基本格式：尤其注意数据头要与你的数据环境匹配</p>
-<pre><code>&lt;!DOCTYPE hibernate-configuration PUBLIC
-&quot;-//Hibernate/Hibernate Configuration DTD 3.0//EN&quot;
-&quot;http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd&quot;&gt;
+        <p><strong>前言</strong><br>hibernate 拿起来用简单，但是用起来很扎心，经常报一些不能理解的错误。很大因素是我不理解 hibernate。hibernate 中的实体类有三大状态：瞬时状态（transient），持久化状态（persistent），游离状态（detached）。理解了这三个状态，就可知道调用一个方法，究竟发了几条 sql ,干了些什么。</p>
+<p>瞬时状态： 不在 session 缓存中，没有保存在数据库中<br>持久化状态： 在 session 缓存中（被 session 托管），保存在数据库中<br>游离状态：不在 session 缓存中，保存在数据库中(离线状态)</p>
+<p>PS: hibernate 二级缓存（session 缓存）是默认开启的，在向数据库查询时先查看会缓存中有没有。</p>
+<p>各种状态转换：<br><img src="/uploads/entity_status.png" alt="enter description here" title="entity_status.png"></p>
+<p><strong>结论</strong><br>1.瞬时状态，游离状态，相当于一个普通对象，没有被 session 托管，操作不影响数据库。<br>2.持久化状态，在 session 缓存中，被 session 托管，相关操作会影响数据库</p>
+<p><img src="/uploads/realation.png" alt="enter description here" title="realation.png"></p>
+<p><strong>测试</strong><br>实体类</p>
+<pre><code>@Entity
+@Table(name = &quot;t_user&quot;)
+public class UserEntity {
 
-&lt;hibernate-configuration&gt;
-    &lt;session-factory&gt;
-        &lt;!--
-        property 标签配置各种数据库基本信息：
-        url、psw、username、driverClass
-        --&gt;
-        &lt;property /&gt;
-        &lt;!--mapping 标签配置实体类映射--&gt;
-        &lt;mapping /&gt;
-    &lt;/session-factory&gt;
-&lt;/hibernate-configuration&gt;
-</code></pre><p>实体与数据表的映射配置：<br>1.使用 xml 配置（ClassName.hbm.xml）</p>
-<pre><code>&lt;!DOCTYPE hibernate-mapping PUBLIC
- &quot;-//Hibernate/Hibernate Mapping DTD 3.0//EN&quot;
-  &quot;http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd&quot; &gt;
-  &lt;hibernate-mapping&gt;
-    &lt;class&gt;
-     &lt;!--对应的实体类属性与数据表列字段映射--&gt;
-    &lt;/class&gt;
-&lt;/hibernate-mapping&gt;
-</code></pre><p>2.使用注解配置:新建对应的实体类，在类中使用注解，基本注解有如下<br>@Entity 声明一个映射实体对象<br>@Table  声明表名<br>@Id     主键<br>@GeneratedValue 主键生成策略<br>@Column 对应列名<br>@Temporal 指定时间精度<br>@Enumerated 指定枚举类型存储格式<br>@Transient 指明该字段不会被持久化</p>
-<p><strong>使用 Session 对象</strong></p>
-<p> 获取 sessionFactory ， 因为 sessionFactory 是用来创建 session 对象，在整个应用都需要用到，其作用域应该是全局的，我们一般设置为单例模式，可参考如下：</p>
-<pre><code>public class HibernateUtil {
-private static final SessionFactory sessionFactory = buildSessionFactory();
+    private Long id;
+    private String name;
 
-private static SessionFactory buildSessionFactory() {
-    final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-            .configure().build();
-    try{
-        return new MetadataSources(registry).buildMetadata()
-                .buildSessionFactory();
-    }catch (Exception e) {
-        e.printStackTrace();
-        StandardServiceRegistryBuilder.destroy(registry);
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long getId() {
+        return id;
     }
-    return null;
-}
+    public String getName() {
+        return name;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-public static SessionFactory getSessionFactory() {
-    return sessionFactory;
 }
-</code></pre><p>通过 sessionFactory 获取 session,参考如下</p>
-<pre><code>/* session 线程不安全,不可以自动回滚和关闭事务 */
-public static Session openSession(){
-    return sessionFactory.openSession();
-}
+</code></pre><p>1.如何维护 GenerationType.IDENTITY 策略 （主键自增ID）</p>
+<p>插入一个 user ，不设置主键ID值，发出sql: Hibernate: insert into t_user (name) values (?)</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
 
-/* session 线程安全,可以自动回滚和关闭事务 */
-public static Session getCurrentSession(){
-    return sessionFactory.getCurrentSession();
-}
-</code></pre><p>调用 session 中的方法操作数据库，参考如下,具体使用查看 API</p>
-<pre><code>try{
-    session.beginTransation();
+UserEntity userEntity = new UserEntity();
+userEntity.setName(&quot;xioamo&quot;);
+session.save(userEntity);
 
-    session.persist(pojo);
-    session.update(pojo);
-    session.delete(pojo);
-    session.get(calzz,id);
-    session.createQuery(sql).list();
+session.getTransaction().commit();
+</code></pre><p>插入一个 user ， 设置主键ID值，发出 sql: Hibernate: insert into t_user (name) values (?)</p>
+<pre><code>Session session = HibernateUtil.openSession();
+ session.beginTransaction();
 
-    session.getTransation().commit();
-}catch{
-    session.getTransation().rollback();
-}finally{
-    session.close();
-}
-</code></pre><p>小结：上面记录了添加依赖 - 配置 - 使用 session 操作数据库的主线，要想用好 hibernate 还需要理解许多相关的细节。</p>
-<p>HQL ： hibernate 的 sql 语句</p>
-<pre><code>Query query = session.createQuery(hql);
-</code></pre><p>获得 query 对象后，可以通过调用其中的方法完成相关操作，类似于使用 PrepareStatement。hql 语法，类似于 sql , 不同的是引用数据表名变为引用相对应的实体类类名，列字段变为实体类的属性。</p>
-<pre><code>&lt;!--sql--&gt;
-select 列名 from 表名 where xxx group by xxx having xxx order by xxx
+ UserEntity userEntity = new UserEntity();
+ userEntity.setName(&quot;xiaoming&quot;);
+ userEntity.setId(100);
+ session.save(userEntity);
 
-&lt;!--hql--&gt;
-select className from className where xxx group by xxx having xxx order by xxx
-</code></pre>
+ session.getTransaction().commit();
+</code></pre><p>通过测试可以知道，无论是都指定主键ID的值，都不会把id 值拼接到 sql 中，也就是说主键自增ID策略，完全交给 mysql 自己来处理。你无法指定特定的主键ID。</p>
+<p>2.瞬时状态，离线状态对象通过 setters 方法修改对象属性，不会更新到数据库。持久化状态通过通过 setters 方法修改对象属性，会更新到数据库。</p>
+<p>userEntity 为瞬时状态，调用setters 控制台没有发出 sql </p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+userEntity.setName(&quot;xiaomo&quot;);
+
+session.getTransaction().commit();
+</code></pre><p>save(userEntity) 后 userEntity 转为持久化状态。发出sql: Hibernate: insert into t_user (name) values (?)</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+userEntity.setName(&quot;xiaomo&quot;);
+session.save(userEntity);
+
+session.getTransaction().commit();
+</code></pre><p>在 save 后 userEntity 是持久状态，修改属性，发现发出一条 update sql<br>sql:<br>Hibernate: insert into t_user (name) values (?)<br>Hibernate: update t_user set name=? where id=?</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+userEntity.setName(&quot;xiaomo&quot;);
+session.save(userEntity);
+userEntity.setName(&quot;xiaoming&quot;);
+
+session.getTransaction().commit();
+</code></pre><p>相对于上面的例子在事务提交前调用 clear 清除缓存，转换为游离状态，发现没有再发出 update sql。<br>sql:<br>Hibernate: insert into t_user (address, email, name) values (?, ?, ?)</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+userEntity.setName(&quot;xiaomo&quot;);
+session.save(userEntity);
+userEntity.setName(&quot;xiaoming&quot;);
+session.clear();
+
+session.getTransaction().commit();   
+</code></pre><p>通过对比上面例子可以说明，在事务提交前 hibernate 会比对持久化状态的对象，发现当前对象内容反生改变（实际上当前对象和 session 缓存的对象是同一个，至于如何发现对象内容发生改变还没有理解清楚），则会以当前对象为准更新到数据库。而对于瞬时状态和游离状态的对象则不作处理。</p>
+<p>3.在会话中多次save 或 update ，其运行结果：<br>Hibernate: insert into t_user (name) values (?)<br>UserEntity{id=15, name=’xiaomo’}<br>UserEntity{id=15, name=’xiaohong’}<br>Hibernate: update t_user set name=? where id=?</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+
+userEntity.setName(&quot;xiaomo&quot;);
+session.save(userEntity);
+System.out.println(session.get(UserEntity.class,userEntity.getId()));
+
+userEntity.setName(&quot;xiaoming&quot;);
+session.save(userEntity);
+
+userEntity.setName(&quot;xiaohong&quot;);
+session.update(userEntity);
+
+System.out.println(session.get(UserEntity.class,userEntity.getId()));
+session.getTransaction().commit();
+</code></pre><p>从上面的测试可以发现只发出了两条 sql ，对于持久化状态的对象，调用 save 或 update 是不起作用的，而是在事务提交前检查对象是否改变，若改变则更新到数据库，通过这样来维护数据库与 session 缓存对象的一致性，大概更高效吧。</p>
+<p>4.执行 update()，只会把对象由非持久状态（如果是非持久状态）转换为持久化状态，真正的 update sql 是在事务提交时发出的。<br>结果：<br>before update run<br>after update run<br>Hibernate: update t_user set name=? where id=?</p>
+<pre><code>Session session = HibernateUtil.openSession();
+session.beginTransaction();
+
+UserEntity userEntity = new UserEntity();
+
+userEntity.setId(2l);
+System.out.println(&quot;before update run&quot;);
+session.update(userEntity);
+System.out.println(&quot;after update run&quot;);
+
+session.getTransaction().commit();
+</code></pre><p><strong>小结：当前被操纵的 java 实体类对象，如果是瞬时状态或者游离状态，则此时没有与数据库关联，如果是持久化状态，该对象（其实就是session缓存的对象）与session 相关联，改变对象属性会更新到数据库。更新到数据库是发生在事务提交的时候。</strong></p>
+<p><img src="/uploads/realation.png" alt="enter description here" title="realation.png"></p>
+<p>以上是单表的测试，可以合理猜测在关联表中，实体类，关联实体类的都几个状态转换与含义都一样的。</p>
+
       
     </div>
     
@@ -471,9 +482,7 @@ select className from className where xxx group by xxx having xxx order by xxx
       
         <div class="post-tags">
           
-            <a href="/tags/orm/" rel="tag"># orm</a>
-          
-            <a href="/tags/hibernate/" rel="tag"># hibernate</a>
+            <a href="/tags/orm-hibernate/" rel="tag"># orm,hibernate</a>
           
         </div>
       
@@ -486,15 +495,15 @@ select className from className where xxx group by xxx having xxx order by xxx
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/10/18/hibernate-使用data-jpa/" rel="next" title="hibernate-使用data jpa">
+                <i class="fa fa-chevron-left"></i> hibernate-使用data jpa
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/09/23/hibernate-基本用法2/" rel="prev" title="hibernate-基本用法2">
-                hibernate-基本用法2 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
